@@ -4,27 +4,27 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {config} from '../config';
 
-const register = (req: Request, res: Response) => {
-    const {name,email,password, pic} = req.body; 
-    if(!email || !password || !name){
+//for user registration....
+const register = (req: Request, res: Response) => {const {name,email,password, pic} = req.body; 
+    
+     if(!email || !password || !name){
        return res.status(401).json({error:"please fill the details....."});
     }
-    User.findOne({email:email})
-    .then((savedUser) => {
-        if(savedUser){
+      
+    User.findOne({email:email}).then((saveddUser) => {
+        //if user already present check...
+         if(savedUser){
           return res.status(401).json({error:"User present already.."});
         }
-        bcrypt.hash(password,12)
-        .then((hashedpassword: string) => {
+        bcrypt.hash(password,8).then((hashedPassword: string) => {
               const user = new User({
                   email,
-                  password:hashedpassword,
+                  password:hashedPassword,
                   name,
                   pic
               })
       
-              user.save()
-              .then((user) => {
+              user.save().then((user) => {
                   res.json({message:"user saved successfully", user});
               })
               .catch((err: Error) => {
@@ -40,6 +40,8 @@ const register = (req: Request, res: Response) => {
     })
   }
 
+
+//for login if user try to login then check their password.
   const login = (req: Request, res: Response) => {
     const {email,password} = req.body;
     // check email and password of the user...
@@ -48,8 +50,7 @@ const register = (req: Request, res: Response) => {
        return res.status(422).json({error:"please add email or password"});
     }
 
-    User.findOne({email:email})
-    .then((savedUser) => {
+    User.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
            return res.status(422).json({error:"Invalid Email or password"})
         }
